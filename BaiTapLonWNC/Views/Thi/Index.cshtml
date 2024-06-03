@@ -1,0 +1,28 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@model List<TblBaiViet>
+<div class="row">
+   
+        @foreach (var item in Model)
+        {
+        <div class="col-md-4 mg-top">
+                <div class="card" style="width: 18rem;">
+                    <img src="~/img/@item.LinkAnh" class="card-img-top" alt="...">
+                    <div class="card-body">
+                        <h5>Mã bài viết: @item.MaBv</h5>
+                        <h5 class="card-title">Tiêu đề: @item.TieuDe</h5>
+                        <p class="card-text">Nội dung: @item.NoiDung</p>
+                        <p class="card-text">Số like: @item.SoLike</p>
+                        <p class="card-text">Số comment: @item.SoComment</p>
+                        <p class="card-text">Mã chủ đề: @item.MaChuDe</p>
+                        <p class="card-text">Mã trang cá nhân: @item.MaTcn</p>
+                        <p class="card-text">VerifyKey: @item.VerifyKey</p>
+                    </div>
+                </div>
+            </div>
+        }
+
+</div>

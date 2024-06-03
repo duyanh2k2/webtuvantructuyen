@@ -1,0 +1,29 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@model TblUser
+<div class="row ">
+    <div class="col-md-4 col__mg">
+        <form asp-action="Login" method="post">
+            <div class="form-group">
+                <label asp-for="UserName"></label>
+                <input asp-for="UserName" class="form-control" />
+                <span class="error" asp-validation-for="UserName"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Pass"></label>
+                <input type="password" asp-for="Pass" class="form-control" />
+                <span class="error" asp-validation-for="Pass"></span>
+            </div>
+
+            <span class="error">@ViewBag.TaiKhoan</span>
+            <br/>
+            <button type="submit" class="btn btn-primary">Đăng nhập</button>
+            <div class="form__link">
+                <a asp-action ="Register" asp-controller="Acount">Bạn chưa có tài khoản?</a>
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,70 @@
+﻿@model BaiTapLonWNC.Models.TrangCaNhan;
+@using Microsoft.AspNetCore.Http;
+@{
+    var user1 = ViewContext.HttpContext.Session.GetString("UserName");
+    var user2 = ViewContext.HttpContext.Session.GetString("UserName2");
+}
+@section Scripts{
+    <script>
+        $(document).ready(function () {
+            $('.Post__menu').click(function () {
+                var item =  $(this).find('.Post__item').first()
+                if (item.length > 0){
+                    $('.Post__item').hide();
+                    item.toggle();
+                }
+            });
+            $(".Post__item").click(function () {
+                var i = $(this).find('button').attr('data-bs-target')
+                    $(i).modal('toggle');
+            });
+        });
+    </script>
+}
+<div class="row">
+    <div class="col-md-8 col__mg">
+        <h2 class="User">@Model.TblTrangCn.NameTcn</h2>
+    </div>
+</div>
+@foreach(var item in Model.BaiViet){
+<div class="row">
+    <div class="col-md-8 col__mg">
+        <div class="Post">
+            <div class="Post__header">
+                <div class="Post__user">@Model.TblTrangCn.NameTcn</div>
+                    @if (user1 == user2)
+                    {
+                        <div class="Post__menu"><svg class="Post__svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path d="M137.4 374.6c12.5 12.5 32.8 12.5 45.3 0l128-128c9.2-9.2 11.9-22.9 6.9-34.9s-16.6-19.8-29.6-19.8L32 192c-12.9 0-24.6 7.8-29.6 19.8s-2.2 25.7 6.9 34.9l128 128z" /></svg>
+                            <ul class="Post__item">
+                                 <li>
+                                     <button type="button" class="custom-button" data-bs-toggle="modal" data-bs-target="#exampleModal">xóa</button>
+                                </li>   
+                            </ul>
+                            <form asp-controller="TrangCN" asp-action="Delete" asp-route-maBV="@item.MaBv">
+                            <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h1 class="modal-title fs-5" id="exampleModalLabel">Xóa Bài Viết</h1>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            Bạn có chắc chắn muốn xóa bài viết?
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                            <button type="submit" class="btn btn-danger">OK</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            </form>
+                        </div>
+                    }
+            </div>
+            <div class="Post__img" style="background-image: url(/img/@item.LinkAnh)"></div>
+            <div class="Post__title"><a id="link" class="Post__link" asp-controller="DetailBV" asp-action="Index" asp-route-maBV="@item.MaBv">@item.TieuDe</a></div>
+        </div>
+    </div>
+</div>
+}

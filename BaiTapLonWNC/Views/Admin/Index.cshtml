@@ -1,0 +1,270 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+<div class="row tbl__mtop">
+    <div class="col-md-6 mg-auto">
+        <button id="add" class="btn btn-outline-primary mg__bt" data-bs-toggle="modal" data-bs-target="#exampleModal">Thêm mới user</button>
+        <table  class="tableStyle">
+            <tr @*class="tb__content"*@>
+                <th>STT</th>
+                <th>UserName</th>
+                <th>Password</th>
+                <th>LoaiUser</th>
+                <th>Chức năng</th>
+            </tr>
+            <tbody id="ds__user">
+
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Thêm mới User</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="maUs" hidden />
+                <div class="form-group">
+                    <label>UserName</label>
+                    <input type="text" class="form-control" id="username" />
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" class="form-control" id="pass"/>
+                </div>
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" class="form-control" id="name"/>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="loaius" id="us1" value="false" checked>
+                    <label class="form-check-label" for="us1">
+                        User
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="loaius" value="true" id="us2">
+                    <label class="form-check-label" for="us2">
+                        Admin
+                    </label>
+                </div>
+                <span class="error"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="btn_add">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="xem" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Tên trang cá nhân</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <table class="tableStyle">
+                    <tr @*class="tb__content"*@>
+                        <th>Name</th>
+                    </tr>
+                    <tbody id="trang__cn">
+
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script>
+        $(document).ready(function(){
+            loadUser();
+        });
+        //thêm ueser
+        $('#btn_add').click(function () {
+            var username = $('#username').val().trim();
+            var pass = $('#pass').val().trim();
+            var name = $('#name').val().trim();
+            var loaius = $('input[name="loaius"]:checked').val();
+            if (username.length == 0 || pass.length == 0 || name.length == 0) {
+                alert("vui lòng nhập đủ dữ liệu");
+                return;
+            }
+            var maUS = $('#maUs').val();
+            if (maUS.length == 0){
+                $.ajax({
+                    url: '/Admin/addUser',
+                    type: 'post',
+                    data: {
+                        username: username,
+                        pass: pass,
+                        name: name,
+                        loaius: loaius
+                    },
+                    success: function (data) {
+                        if (data.code == 200) {
+                            alert(data.msg)
+                            loadUser();
+                            $('#username').val('')
+                            $('#pass').val('')
+                            $('#name').val('')
+                        } else {
+                            alert(data.msg)
+                        }
+                    }
+                });
+            }
+            else{
+                $.ajax({
+                    url: '/Admin/UpdateUser',
+                    type: 'post',
+                    data: {
+                        id:maUS,
+                        username: username,
+                        pass: pass,
+                        name: name,
+                        loaius: loaius
+                    },
+                    success: function (data) {
+                        if (data.code == 200) {
+                            alert(data.msg)
+                            loadUser()
+                        } else {
+                            alert(data.msg)
+                        }
+                    }
+                });
+                
+            }
+           
+        });
+
+        //xem thông tin user
+        $(document).on('click',".btn__xem",function () {
+           var usid = $(this).data('id');
+            $.ajax({
+                url: '/Admin/TrangCn',
+                Type:'get',
+                data:{id:usid},
+                success:function(data){
+                    $('#trang__cn').empty();
+                    if(data.code==200){
+                        let tr ='<tr>';
+                            tr += '<td>' + data.tcn.nameTcn + '</td>';
+                            tr +='</tr>';
+                        $('#trang__cn').append(tr);
+                        $('#xem').modal('show');
+                    }
+                }
+            });
+        });
+        // hiện user cần sửa
+        $(document).on('click', ".btn__sua", function () {
+            var usid = $(this).data('id');
+            $.ajax({
+                url: '/Admin/user',
+                Type: 'get',
+                data: { id: usid },
+                success: function (data) {
+                    if (data.code == 200) {
+                       $('#maUs').val(usid);
+                        $('#username').val(data.us.userName);
+                        $('#pass').val(data.us.pass);
+                        if(data.us.loaiUser==false){
+                            $('#us1').prop('checked', true);
+                        }else{
+                            $('#us2').prop('checked', true);
+                        }
+                        $('#exampleModal').modal('show');
+                       
+                    }
+                }
+            });
+            $.ajax({
+                url: '/Admin/TrangCn',
+                Type: 'get',
+                data: {
+                    id: usid,
+                },
+                success: function (data) {
+                    if (data.code == 200) {
+                        $('#name').val(data.tcn.nameTcn);
+                    }
+                }
+            });
+        });
+        //xóa user
+        $(document).on('click', ".btn__xoa", function () {
+            var usid = $(this).data('id');
+            if(confirm("Bạn thật sự muốn xóa user này?")){
+                $.ajax({
+                    url:'/Admin/xoa',
+                    type:'post',
+                    data: { id : usid },
+                    success: function (data) {
+                        if (data.code == 200) {
+                            loadUser();
+                            alert(data.msg)
+                        }
+                        else{
+                            alert(data.msg)
+                        }
+                    }
+                });
+            }
+            
+        });
+        //hiện danh sách user
+        function loadUser(){
+        $.ajax({
+            url: '/Admin/dsUser',
+            Type: 'get',
+            success: function (data) {
+                //console.log(data)
+                if(data.code==200){
+                        $('#ds__user').empty();
+                    $.each(data.dsus, function(k,v){
+                            var a="";
+                            if(v.loaiUser==false){
+                                a="User"
+                            }else{
+                                a="Admin"
+                            }
+                            let tr = '<tr>';
+                            tr += '<td>'+k+'</td>';
+                            tr += '<td>'+v.userName+'</td>';
+                            tr += '<td>' + v.pass + '</td>';
+                            tr += '<td>' +a+'</td>';
+                            tr += '<td class="fl">';
+                            tr += '<button class="btn__xem btn btn-info" data-id=' + v.maUs + '>Xem</button>'
+                            tr += '<button class="btn__sua btn btn-secondary" data-id=' + v.maUs + '>Sửa</button>'
+                            tr += '<button class="btn__xoa btn btn-danger" data-id=' + v.maUs + '>Xóa</button>'
+                            tr +='</td>';
+                            tr +='</tr>';
+                            $('#ds__user').append(tr);
+                    });
+                }
+            }
+        });
+        }
+        $('#add').click(function () {
+            $('#maUs').val('');
+            $('#username').val('');
+            $('#pass').val('');
+            $('#name').val('');
+            $('#us1').prop('checked', true);
+        });
+    </script>
+}

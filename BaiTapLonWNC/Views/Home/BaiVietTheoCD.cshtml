@@ -1,0 +1,129 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+@model BaiTapLonWNC.Models.Home;
+@using Microsoft.AspNetCore.Http;
+@{
+    var name = ViewContext.HttpContext.Session.GetString("Name");
+}
+@section Scripts{
+    <script>
+        $(document).ready(function () {
+            $("#ipPostBai").click(function () {
+
+            });
+            $(".topic__item li").on("click", function (event) {
+                var link = $(this).find("a").first();
+                if (link.length > 0) {
+                    event.preventDefault(); // Ngăn chặn hành động mặc định của thẻ <a>
+                    window.location.href = link.attr("href"); // Chuyển hướng đến trang được chỉ định trong href của thẻ <a>
+                }
+            });
+            $(".Post").on("click", function (event) {
+                var link = $(this).find("a").first();
+                if (link.length > 0) {
+                    event.preventDefault();
+                    window.location.href = link.attr("href");
+                }
+            });
+            $('.myInputs').on('input', function () {
+                var allInputsFilled = true;
+                $('.myInputs').each(function () {
+                    if ($(this).val().trim() === '') {
+                        allInputsFilled = false;
+                        return false; // dừng vòng lặp nếu có một input rỗng
+                    }
+                });
+                $('#myButton').prop('disabled', !allInputsFilled);
+            });
+        });
+
+    </script>
+}
+<div class="topic">
+    @* <div class="topic--fix">*@
+    <h1 class="topic__text">Chủ đề</h1>
+    <ul class="topic__item">
+        @foreach (var cd in Model.chuDes)
+        {
+            <li><a class="topic__link" asp-controller="Home" asp-action="BaiVietTheoCD" asp-route-id="@cd.MaChuDe">@cd.TenChuDe</a></li>
+        }
+    </ul>
+    @*</div>*@
+</div>
+@if (!string.IsNullOrEmpty(name))
+{
+    <div class="row">
+        <div class="col-md-8 col__mg">
+            <div class="PostBai">
+                <div class="PostBai__user">@name</div>
+                <div class="PostBai__ip">
+                    <form action="" method="post">
+                        <input type="text" class="form-control" id="ipPostBai" data-bs-toggle="modal" data-bs-target="#modaladdBV" placeholder="Bạn muốn tư vấn về thông tin gì?" readonly />
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="modaladdBV">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1>Tạo bài viết</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form asp-controller="Home" asp-action="Index" method="post" enctype="multipart/form-data">
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label asp-for="BaiViet.TieuDe"></label>
+                                <input asp-for="BaiViet.TieuDe" class="form-control myInputs" />
+                                <span class="error" asp-validation-for="BaiViet.TieuDe"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="BaiViet.NoiDung"></label>
+                                <textarea asp-for="BaiViet.NoiDung" class="form-control myInputs"></textarea>
+                                <span class="error" asp-validation-for="BaiViet.NoiDung"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="BaiViet.LinkAnh"></label>
+                                <input type="file" asp-for="BaiViet.LinkAnh" name="file" class="form-control myInputs" />
+                                <span class="error" asp-validation-for="BaiViet.LinkAnh"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="BaiViet.MaChuDe"></label>
+                                <select class="form-select myInputs" asp-for="BaiViet.MaChuDe">
+                                    @foreach (var cd in Model.chuDes)
+                                    {
+                                        <option value="@cd.MaChuDe">@cd.TenChuDe</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary" id="myButton" disabled>Đăng bài</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+@foreach (var post in Model.BaiViets)
+{
+    @foreach (var tcn in Model.trangCns)
+    {
+        @if (tcn.MaTcn == post.MaTcn)
+        {
+            <div class="row">
+                <div class="col-md-8 col__mg">
+                    <div class="Post">
+                        <div class="Post__user">@tcn.NameTcn</div>
+                        <div class="Post__img" style="background-image: url(/img/@post.LinkAnh)"></div>
+                        <div class="Post__title"><a id="link" class="Post__link" asp-controller="DetailBV" asp-action="Index" asp-route-maBV="@post.MaBv">@post.TieuDe</a></div>
+                    </div>
+                </div>
+            </div>
+
+        }
+    }
+}

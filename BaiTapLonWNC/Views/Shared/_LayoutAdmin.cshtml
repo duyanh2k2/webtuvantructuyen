@@ -1,0 +1,44 @@
+﻿<!DOCTYPE html>
+
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link href="~/css/admin.css" rel="stylesheet" />
+</head>
+<body>
+    @{
+        var UserName = ViewContext.HttpContext.Session.GetString("UserName");
+    }
+    <div class="nav">
+       @* <div class="container">*@
+        <div class="nav__pc">
+            <ul class="nav__list">
+                <li class="nav__item"><a asp-controller="Admin" asp-action="Index">User</a></li>
+                <li class="nav__item">
+                        <a asp-controller="Admin" asp-action="Post">Bài Viết</a>
+                </li>
+                <li class="nav__item">
+                        <a asp-controller="Admin" asp-action="DSChuDe">Chủ Đề</a>
+                </li>
+            </ul>
+            <ul class="nav__list nav__list--margin">
+                @if (!string.IsNullOrEmpty(UserName))
+                {
+                    <li class="nav__item nav__item--space nav__item--hv"><a>@UserName</a></li>
+                    <li class="nav__item nav__item--hv"><a asp-action="Logout" asp-controller="Acount">Logout</a></li>
+                }
+            </ul>
+        </div>
+       @* </div>*@
+    </div>
+    <div class="container">
+        @RenderBody()
+    </div>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

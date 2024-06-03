@@ -1,0 +1,105 @@
+﻿
+<!DOCTYPE html>
+@using Microsoft.AspNetCore.Http;
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - BaiTapLonWNC</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/BaiTapLonWNC.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/Home.css" asp-append-version="true" />
+    <link href="~/css/login.css" rel="stylesheet" />
+    <link href="~/css/detail.css" rel="stylesheet" />
+    <link href="~/css/trangcanhan.css" rel="stylesheet" />
+</head>
+<body>
+    @{
+        var UserName = ViewContext.HttpContext.Session.GetString("UserName");
+        var id = ViewContext.HttpContext.Session.GetInt32("IdCaNhan");
+    }
+    <header>
+        <div class="nav">
+            <div class="nav__pc">
+                <ul class="nav__list">
+                    <li class="nav__item nav__item--logo"><a asp-controller="Home" asp-action="Index"><img src="~/img/LHA.png" /></a></li>
+                    <li class="nav__item">
+                        <form class="d-flex nav__search" role="search" asp-controller="Home" asp-action="BaiVieSearch">
+                            <input class="form-control me-2" type="search" name="tieude"  placeholder="Search" aria-label="Search">
+                            <button class="btn btn-outline-success" type="submit">Search</button>
+                        </form>
+                    </li>
+                </ul>
+                <ul class="nav__list nav__list--margin">
+                    <li class="nav__item">
+                        <a asp-controller="Thi" asp-action="Index">Thi</a>
+                    </li>
+                    @if (!string.IsNullOrEmpty(UserName))
+                    {
+                        <li class="nav__item nav__item--space nav__item--hv"><a asp-controller="TrangCN" asp-action="Index" asp-route-maTCN="@id">@UserName</a></li>
+                        <li class="nav__item nav__item--hv"><a asp-action="Logout" asp-controller="Acount">Logout</a></li>
+                    }
+                    else{
+                    <li class="nav__item nav__item--space nav__item--hv"><a asp-action="Login" asp-controller="Acount">Đăng nhập</a></li>
+                        <li class="nav__item nav__item--hv"><a asp-action="Register" asp-controller="Acount">Đăng kí</a></li>
+                    }
+                </ul>
+            </div>
+            <div class="nav__bar-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z" /></svg>
+            </div>
+            <div class="nav__overlay"></div>
+            <div class="nav__mobile">
+                <div class="nav__mobile-close">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z" /></svg>
+                </div>
+                <ul class="nav__mobile-list nav__mobile-list--bd">
+                    <li class="nav__mobile-item nav__mobile-item--logo"><a asp-controller="Home" asp-action="Index"><img src="~/img/LHA.png" /></a></li>
+                    <li class="nav__mobile-item">
+                        <form class="d-flex nav__mobile-search" role="search">
+                            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                            <button class="btn btn-outline-success" type="submit">Search</button>
+                        </form>
+                    </li>
+                </ul>
+                <ul class="nav__mobile-list">
+                    <li class="nav__mobile-item nav__mobile-item--hv"><a href="#">Đăng nhập</a></li>
+                    <li class="nav__mobile-item nav__mobile-item--hv"><a href="#">Đăng kí</a></li>
+                </ul>
+            </div>
+        </div>
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container-fluid" style="background-color:rgba(0,0,0,0.7); color:aqua">
+            &copy; 2024 - BaiTapLonWNC 
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false) 
+    <script>
+        $(document).ready(function () {
+            $('.nav__bar-btn').click(function () {
+                $('.nav__overlay').css('display','block');
+                $('.nav__mobile').css('transform', 'translateX(0%)')
+            })
+            $('.nav__overlay').click(function (){
+                $(this).css('display','none');
+                $('.nav__mobile').css('transform', 'translateX(-100%)')
+            })
+            $('.nav__mobile-close').click(function () {
+                $('.nav__overlay').css('display','none');
+                $('.nav__mobile').css('transform', 'translateX(-100%)')
+            })
+        })
+    </script>
+</body>
+</html>

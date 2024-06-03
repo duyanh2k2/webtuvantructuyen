@@ -1,0 +1,275 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+<div class="row tbl__mtop">
+    <div class="col-md-9 mg-auto">
+        <button id="add" class="btn btn-outline-primary mg__bt" data-bs-toggle="modal" data-bs-target="#exampleModal">Thêm mới bài viết</button>
+        <table class="tableStyle">
+            <tr @*class="tb__content"*@>
+                <th>STT</th>
+                <th>Tiêu đề</th>
+                <th>Ảnh</th>
+                <th>Số Like</th>
+                <th>Số Comment</th>
+                <th>Chức năng</th>
+            </tr>
+            <tbody id="ds__BaiViet">
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Thêm mới bài viết</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="maBv" hidden />
+                <div class="form-group">
+                    <label for="tieude">Tiêu đề</label>
+                    <input type="text" class="form-control" id="tieude" />
+                </div>
+                <div class="form-group">
+                    <label for="noidung">Nội dung</label>
+                    <input type="text" class="form-control" id="noidung" />
+                </div>
+                <div class="form-group">
+                    <label for="anh">Ảnh</label>
+                    <input type="file" class="form-control" id="anh"/>
+                </div>
+                <div class="form-group">
+                    <label>Chủ đề</label>
+                    <select class="form-select" id="chude">
+                        <option value=""></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Trang cá nhân</label>
+                    <select class="form-select" id="trangcn">
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="myButton">Đăng bài</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="xem" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Tên trang cá nhân</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <table class="tableStyle">
+                    <tr @*class="tb__content"*@>
+                        <th>Bài viết của</th>
+                    </tr>
+                    <tbody id="trang__cn">
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            loadBaiViet();
+            $.ajax({
+                url: '/Admin/ChuDe',
+                Type: 'get',
+                success: function (data) {
+                    //console.log(data)
+                    if (data.code == 200) {
+                        $('#chude').empty();
+                        $.each(data.dscd, function (k, v) {
+                            let tr = '<option value="' + v.maChuDe + '">' + v.tenChuDe + '</option>';
+                            $('#chude').append(tr);
+                        });
+                    }
+                }
+            });
+            $.ajax({
+                url: '/Admin/trangcanhan',
+                Type: 'get',
+                success: function (data) {
+                    //console.log(data)
+                    if (data.code == 200) {
+                        $('#trangcn').empty();
+                        $.each(data.dscn, function (k, v) {
+                            let tr = '<option value="' + v.maTcn + '">' + v.nameTcn + '</option>';
+                            $('#trangcn').append(tr);
+                        });
+                    }
+                }
+            });
+        });
+        //thêm ueser
+        $('#myButton').click(function () {
+            var tieude = $('#tieude').val().trim();
+            var noidung = $('#noidung').val().trim();
+            var anh = $('#anh')[0].files[0];
+            var formData = new FormData();
+            formData.append('tieude', tieude);
+            formData.append('noidung',noidung);
+            formData.append('file', anh);
+            var chude = $('#chude').val().trim();
+            formData.append('chude',chude);
+            var trangcn = $('#trangcn').val().trim();
+            formData.append('trangcn', trangcn);
+            if (tieude.length == 0 || noidung.length == 0 || $('#anh')[0].files.length == 0 || chude.length == 0 || trangcn.length == 0) {
+                alert("vui lòng nhập đủ dữ liệu");
+                return;
+            }
+            var maBv = $('#maBv').val();
+            if (maBv.length == 0) {
+                $.ajax({
+                    url: '/Admin/postAnh',
+                    type: 'post',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function (data) {
+                        if (data.code == 200) {
+                            alert(data.msg)
+                            loadBaiViet();
+                        $('#tieude').val('');
+                        $('#noidung').val('');
+                        $('#anh').val('')
+
+                        } else {
+                            alert(data.msg)
+                        }
+                    }
+                });
+            }
+            else {
+                formData.append('maBv',maBv);
+                $.ajax({
+                    url: '/Admin/UpdateBV',
+                    type: 'post',
+                    data:formData,
+                    processData: false,
+                    contentType: false,
+                    success: function (data) {
+                        if (data.code == 200) {
+                            alert(data.msg)
+                            loadBaiViet();
+                        } else {
+                            alert(data.msg)
+                        }
+                    }
+                });
+
+            }
+
+        });
+
+        //xem thông tin user
+        $(document).on('click', ".btn__xem", function () {
+            var usid = $(this).data('id');
+            $.ajax({
+                url: '/Admin/TrangCn',
+                Type: 'get',
+                data: { id: usid },
+                success: function (data) {
+                    $('#trang__cn').empty();
+                    if (data.code == 200) {
+                        let tr = '<tr>';
+                        tr += '<td>' + data.tcn.nameTcn + '</td>';
+                        tr += '</tr>';
+                        $('#trang__cn').append(tr);
+                        $('#xem').modal('show');
+                    }
+                }
+            });
+        });
+        // hiện user cần sửa
+        $(document).on('click', ".btn__sua", function () {
+            var usid = $(this).data('id');
+            $.ajax({
+                url: '/Admin/BaiViet1',
+                Type: 'get',
+                data: {
+                    id: usid,
+                },
+                success: function (data) {
+                    if (data.code == 200) {
+                        $('#maBv').val(usid);
+                        $('#tieude').val(data.baiviet.tieuDe);
+                        $('#noidung').val(data.baiviet.noiDung);
+                        $('#chude').val(data.baiviet.maChuDe);
+                        $('#trangcn').val(data.baiviet.maTcn);
+                        $('#exampleModal').modal('show');
+                    }
+                }
+            });
+        });
+        //xóa bài viết
+        $(document).on('click', ".btn__xoa", function () {
+            var usid = $(this).data('id');
+            if (confirm("Bạn thật sự muốn xóa bài viết này này?")) {
+                $.ajax({
+                    url: '/Admin/XoaBV',
+                    type: 'post',
+                    data: { id: usid },
+                    success: function (data) {
+                        if (data.code == 200) {
+                            loadBaiViet();
+                            alert(data.msg)
+                        }
+                        else {
+                            alert(data.msg)
+                        }
+                    }
+                });
+            }
+
+        });
+        function loadBaiViet() 
+        {
+            $.ajax({
+                url: '/Admin/DSPost',
+                Type: 'get',
+                success: function (data) {
+                    //console.log(data)
+                    if (data.code == 200) {
+                        $('#ds__BaiViet').empty();
+                        $.each(data.dsp, function (k, v) {
+                            let tr = '<tr>';
+                            tr += '<td>' + k + '</td>';
+                            tr += '<td>' + v.tieuDe + '</td>';
+                            tr += '<td><img class="post__anh" src="/img/'+v.linkAnh+'"/></td>';
+                            tr += '<td>' + v.soLike + '</td>';
+                            tr += '<td>' + v.soComment + '</td>';
+                            tr += '<td><div class="fl">';
+                            tr += '<button class="btn__xem btn btn-info btnmg" data-id=' + v.maTcn + '>Xem</button>'
+                            tr += '<button class="btn__sua btn btn-secondary btnmg" data-id=' + v.maBv + '>Sửa</button>'
+                            tr += '<button class="btn__xoa btn btn-danger" data-id=' + v.maBv + '>Xóa</button>'
+                            tr += '</div></td>';
+                            tr += '</tr>';
+                            $('#ds__BaiViet').append(tr);
+                        });
+                    }
+                }
+            });
+        }
+        $('#add').click(function () {
+            $('#maBv').val('');
+            $('#tieude').val('');
+            $('#noidung').val('');
+            $('#anh').val('');
+        });
+    </script>
+}
